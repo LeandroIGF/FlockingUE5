@@ -35,18 +35,20 @@ void ABoidManager::Tick(float DeltaTime)
 		FVector Separation = FVector::ZeroVector;
 		FVector Alignment = FVector::ZeroVector;
 		FVector Cohesion = FVector::ZeroVector;
+		FVector Predator = FVector::ZeroVector;
 
 		//Counting elements near us for alignment and cohesion calculation
 		int32 AlignmentCount = 0;
 		int32 CohesionCount = 0;
 		int32 SeparationCount = 0;
+		int32 PredatorCount = 0;
 
 		FVector BoidLocation = Boid->GetActorLocation();
 
 		//Calculate Flocking parameters for each of our neighbor
 		for (ABoid* Neighbor : Boids)
 		{
-			if (!IsValid(Neighbor) || Neighbor == Boid) continue;
+			if (!IsValid(Neighbor) || Neighbor == Boid || Neighbor->ActorHasTag(TEXT("Obstacle")) || Neighbor->ActorHasTag(TEXT("Predator"))) continue;
 
 			float Dist = FVector::Distance(BoidLocation, Neighbor->GetActorLocation());
 
@@ -66,6 +68,12 @@ void ABoidManager::Tick(float DeltaTime)
 			{
 				Cohesion += Neighbor->GetActorLocation();
 				CohesionCount++;
+			}
+
+			if (Neighbor->ActorHasTag(TEXT("Predator")) && Dist < PredatorRadius)
+			{
+				Predator += (Neighbor->GetActorLocation() - BoidLocation).GetSafeNormal();
+				PredatorCount++;
 			}
 		}			
 
@@ -88,6 +96,11 @@ void ABoidManager::Tick(float DeltaTime)
 			Cohesion = (AvgPos - BoidLocation).GetSafeNormal();
 		}
 
+		if (PredatorCount > 0)
+		{
+			Predator = ((Predator / PredatorCount) * -1.f).GetSafeNormal();
+		}
+
 		//Calculate direction when outside cube
 
 		FVector BoundsMin = GetActorLocation() - BoundsExtent;
@@ -103,17 +116,27 @@ void ABoidManager::Tick(float DeltaTime)
 		if (BoidLocation.Z < BoundsMin.Z) BoundsForce.Z = 1;
 		else if (BoidLocation.Z > BoundsMax.Z) BoundsForce.Z = -1;
 
-		BoundsForce = BoundsForce.GetSafeNormal() * BoundsWeight;
-
 		//Calculate weight
 		//Final parameters values
-		FVector TotalSeparation = Separation * SeparationWeight;
-		FVector TotalAlignment = Alignment * AlignmentWeight;
-		FVector TotalCohesion = Cohesion * CohesionWeight;
+		
+
+		FFlockingInfo FlockingInfo;		
+		
+		if (Boid->bLeader)
+		{
+			FlockingInfo.Goal = (Boid->GoalLocation - Boid->GetActorLocation()).GetSafeNormal() * GoalWeight;
+		}
+		
+		FlockingInfo.Bounds = BoundsForce.GetSafeNormal() * BoundsWeight;
+
+		FlockingInfo.Separation = Separation * SeparationWeight;
+		FlockingInfo.Alignment = Alignment * AlignmentWeight;
+		FlockingInfo.Cohesion = Cohesion * CohesionWeight;
+		FlockingInfo.Predator = Predator * PredatorWeight;
 
 		//Update void
 		//TODO: Put parameters inside a struct
-		Boid->UpdateBoid(DeltaTime, TotalSeparation, TotalAlignment, TotalCohesion, BoundsForce);
+		Boid->UpdateBoid(DeltaTime, FlockingInfo);
 	}
 
 }

@@ -6,6 +6,37 @@
 #include "GameFramework/Actor.h"
 #include "Boid.generated.h"
 
+USTRUCT(BlueprintType)
+struct FFlockingInfo
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
+	FVector Separation = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
+	FVector Alignment = FVector::ZeroVector;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
+	FVector Cohesion = FVector::ZeroVector;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
+	FVector Bounds = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
+	FVector Goal = FVector::ZeroVector;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
+	FVector Predator = FVector::ZeroVector;
+
+	FVector ComputeTotalForce() const
+	{
+		return Separation + Alignment + Cohesion + Bounds + Goal + Predator;
+	}
+};
+
+
+
 UCLASS()
 class FLOCKING5_3_API ABoid : public AActor
 {
@@ -29,7 +60,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boid")
 	FVector Velocity = FVector::ZeroVector;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boid")
+	bool bLeader = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boid")
+	FVector GoalLocation = FVector::ZeroVector;
+
 	UFUNCTION()
-	void UpdateBoid(float DeltaTime, const FVector& Separation, const FVector& Alignment, const FVector& Cohesion, const FVector& Bounds);
+	void UpdateBoid(float DeltaTime, const FFlockingInfo& FlockingInfo);
 
 };

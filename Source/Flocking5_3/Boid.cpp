@@ -25,10 +25,10 @@ void ABoid::Tick(float DeltaTime)
 
 }
 
-void ABoid::UpdateBoid(float DeltaTime, const FVector& Separation, const FVector& Alignment, const FVector& Cohesion, const FVector& Bounds)
+void ABoid::UpdateBoid(float DeltaTime, const FFlockingInfo& FlockingInfo)
 {
 
-	FVector Direction = Separation + Alignment + Cohesion + Bounds;
+	FVector Direction = FlockingInfo.ComputeTotalForce();
 	Velocity = Velocity + Direction * DeltaTime;
 	Velocity = Velocity.GetClampedToMaxSize(Speed);
 

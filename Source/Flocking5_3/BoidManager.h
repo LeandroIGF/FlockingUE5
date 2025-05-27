@@ -38,6 +38,9 @@ public:
 	float CohesionRadius = 400.f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BoidManager")
+	float PredatorRadius = 1500.f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BoidManager")
 	float SeparationWeight = 200.f;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BoidManager")
@@ -54,5 +57,11 @@ public:
 	FVector BoundsExtent = FVector(1000.f,1000.f,1000.f);
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BoidManager")
-	float BoundsWeight = 2.f;
+	float BoundsWeight = 1000.f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BoidManager")
+	float GoalWeight = 1000.f;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "BoidManager")
+	float PredatorWeight = 1000.f;
 };
