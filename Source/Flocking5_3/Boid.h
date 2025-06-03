@@ -3,36 +3,24 @@
 #pragma once
 
 #include "CoreMinimal.h"
+//#include "FlockingRule.h"
 #include "GameFramework/Actor.h"
 #include "Boid.generated.h"
+
+class UFlockingRule;
+class UFlockingData;
 
 USTRUCT(BlueprintType)
 struct FFlockingInfo
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
-	FVector Separation = FVector::ZeroVector;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
-	FVector Alignment = FVector::ZeroVector;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
-	FVector Cohesion = FVector::ZeroVector;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
-	FVector Bounds = FVector::ZeroVector;
+	float RuleRadius = 1000.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
-	FVector Goal = FVector::ZeroVector;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FlockingInfo")
-	FVector Predator = FVector::ZeroVector;
-
-	FVector ComputeTotalForce() const
-	{
-		return Separation + Alignment + Cohesion + Bounds + Goal + Predator;
-	}
+	float RuleWeight = 1.f;	
 };
 
 
@@ -66,7 +54,19 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boid")
 	FVector GoalLocation = FVector::ZeroVector;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boid")
+	TObjectPtr<UFlockingData> BoidFlockingData = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boid")
+	TArray<TObjectPtr<UFlockingRule>> FlockingRuleList;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boid")
+	FVector BoundsExtent = FVector(2000.f,2000.f,2000.f);
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Boid")
+	FVector Anchor = FVector::ZeroVector;
+
 	UFUNCTION()
-	void UpdateBoid(float DeltaTime, const FFlockingInfo& FlockingInfo);
+	void UpdateBoid(float DeltaTime);
 
 };
